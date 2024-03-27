@@ -14,6 +14,14 @@ use cheats::TeamColors;
 const CAR: Color = Color::Red;
 const TARGET: Color = Color::Green;
 
+fn led_config() -> LedDetectionConfig {
+    LedDetectionConfig {
+        width: 960,
+        height: 720,
+        max_size: (40, 40),
+        ..Default::default()
+    }
+}
 #[allow(unused)]
 struct MapState {
     car: Position,
@@ -35,7 +43,7 @@ impl From<eyre::Report> for OurError {
 impl MapState {
     pub async fn infer(drone: &mut Camera) -> Result<Self, OurError> {
         let frame = drone.snapshot().await?;
-        let leds = detect(&frame.0, &LedDetectionConfig::default())?;
+        let leds = detect(&frame.0, &led_config())?;
 
         let target = leds
             .iter()
@@ -145,6 +153,7 @@ impl State {
                     drone,
                     motor,
                     wheels,
+                    &led_config()
                 )
                     .await?;
 
@@ -162,6 +171,7 @@ impl State {
                     drone,
                     motor,
                     wheels,
+                    &led_config()
                 )
                     .await?;
 

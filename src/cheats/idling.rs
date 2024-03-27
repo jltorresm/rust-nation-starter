@@ -17,6 +17,7 @@ pub async fn auto(
     drone: &mut Camera,
     _motor: &mut MotorSocket,
     _wheels: &mut WheelOrientation,
+    led_config: &LedDetectionConfig,
 ) -> eyre::Result<()> {
     // todo: set a sane default for determining whether we are
     // "on" the target
@@ -25,12 +26,12 @@ pub async fn auto(
     'idle: loop {
         const IDLE_DURATION: Duration = Duration::from_secs(1);
 
-        let (precar, pretarget) = super::internal::infer(colors, drone).await?;
+        let (precar, pretarget) = super::internal::infer(colors, drone, led_config).await?;
         let pre = distance(&precar, &pretarget);
 
         tokio::time::sleep(IDLE_DURATION).await;
 
-        let (currentcar, currenttarget) = super::internal::infer(colors, drone).await?;
+        let (currentcar, currenttarget) = super::internal::infer(colors, drone, led_config).await?;
         let current = distance(&currentcar, &currenttarget);
 
         // 1. if we were closer to the target before, recalibrate

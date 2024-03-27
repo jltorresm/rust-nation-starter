@@ -8,11 +8,12 @@ use hs_hackathon::vision::{detect, BoundingBox, LedDetectionConfig};
 pub(crate) async fn infer(
     colors: &TeamColors,
     camera: &Camera,
+    led_config: &LedDetectionConfig,
 ) -> eyre::Result<(BoundingBox, BoundingBox)> {
     loop {
         let frame = camera.snapshot().await?;
 
-        let leds = detect(&frame.0, &LedDetectionConfig::default())?;
+        let leds = detect(&frame.0, led_config)?;
 
         let Some(car) = leds.iter().find(|led| led.color == colors.car) else {
             continue;

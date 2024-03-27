@@ -3,6 +3,7 @@ use std::time::Duration;
 use hs_hackathon::car::{Angle, MotorSocket, Velocity, WheelOrientation};
 use hs_hackathon::drone::Camera;
 use hs_hackathon::prelude::eyre;
+use hs_hackathon::vision::LedDetectionConfig;
 
 use crate::cheats::positioning::distance;
 
@@ -25,6 +26,7 @@ pub async fn auto(
     drone: &mut Camera,
     motor: &mut MotorSocket,
     wheels: &mut WheelOrientation,
+    led_config: &LedDetectionConfig
 ) -> eyre::Result<Hint> {
     // todo: set a sane default for determining whether we are
     // "on" the target
@@ -32,7 +34,7 @@ pub async fn auto(
     const APPROACHING_DURATION: Duration = Duration::from_secs(2);
 
     'approaching: loop {
-        let (precar, pretarget) = super::internal::infer(colors, drone).await?;
+        let (precar, pretarget) = super::internal::infer(colors, drone, &led_config).await?;
         let pre = distance(&precar, &pretarget);
 
         wheels.set(Angle::straight()).await?;
@@ -40,7 +42,7 @@ pub async fn auto(
             .move_for(Velocity::forward(), APPROACHING_DURATION)
             .await?;
 
-        let (currentcar, currenttarget) = super::internal::infer(colors, drone).await?;
+        let (currentcar, currenttarget) = super::internal::infer(colors, drone, &led_config).await?;
         let current = distance(&currentcar, &currenttarget);
 
         // 1. if current is in a success threshold difference
