@@ -78,7 +78,10 @@ impl MapState {
         let (old, new) = loop {
             let old = match Self::infer(drone).await {
                 Ok(old) => old,
-                Err(_) => continue,
+                Err(_) => {
+                    tracing::warn!("couldn't find the items");
+                    continue;
+                }
             };
 
             motor
@@ -87,8 +90,11 @@ impl MapState {
 
             let new = match Self::infer(drone).await {
                 Ok(new) => new,
-                Err(_) => continue,
-            } ;
+                Err(_) => {
+                    tracing::warn!("couldn't find the items");
+                    continue;
+                }
+            };
 
             break (old, new);
         };
@@ -140,7 +146,7 @@ impl State {
                     motor,
                     wheels,
                 )
-                .await?;
+                    .await?;
 
                 *self = match hint {
                     Hint::TargetWasHit => Self::Idle,
@@ -157,7 +163,7 @@ impl State {
                     motor,
                     wheels,
                 )
-                .await?;
+                    .await?;
 
                 *self = Self::Turning;
             }
