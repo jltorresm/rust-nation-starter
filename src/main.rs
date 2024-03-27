@@ -128,3 +128,36 @@ async fn main() -> eyre::Result<()> {
         tracing::debug!("{:?}", machine);
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use eyre::Context;
+
+    use std::path::{Path, PathBuf};
+    use hs_hackathon::prelude::{detect, LedDetectionConfig};
+    use image::{codecs::jpeg::JpegDecoder, DynamicImage};
+
+    #[test]
+    fn test_position_gathering() {
+        let p = PathBuf::from("./assets/33.jpg");
+        let img = read_image(&p).unwrap();
+
+        let mut config = LedDetectionConfig::default();
+        config.max_size = (40, 40);
+        config.width = 960;
+        config.height = 720;
+
+        let leds = detect(&img, &config).unwrap();
+
+        println!("leds: {:?}", leds);
+    }
+
+    fn read_image(p: &Path) -> eyre::Result<DynamicImage> {
+        let bytes = std::fs::read(p).wrap_err("read file")?;
+        let decoder = JpegDecoder::new(bytes.as_slice()).wrap_err("launch decoder")?;
+        let img = DynamicImage::from_decoder(decoder).wrap_err("decode frame")?;
+
+        Ok(img)
+    }
+}
