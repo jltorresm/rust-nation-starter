@@ -1,5 +1,5 @@
 mod cheats;
-
+use std::time::Duration;
 use hs_hackathon::prelude::*;
 
 use cheats::angles::Vector;
@@ -76,7 +76,20 @@ impl State {
     ) -> eyre::Result<()> {
         match self {
             State::Turning => loop {
-                unimplemented!()
+                // Calculate the current orientation of the car
+                // position of the target
+                // and the angle between the two
+                // align the car to the target
+                // move forward a bit
+                
+                wheels.set(Angle::left()).await?;
+                motor.move_for(Velocity::forward(), Duration::from_secs(1)).await?;
+                wheels.set(Angle::straight()).await?;
+                motor.move_for(Velocity::forward(), Duration::from_millis(1)).await?;
+                
+                
+                
+                *self = Self::Approaching;
             },
             State::Approaching => {
                 let hint = cheats::approaching::auto(
